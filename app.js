@@ -24,8 +24,8 @@ const main = async () => {
 	await longTask(
 		100,
 		start([
-			{ ...prefabs.percentage(), size: 10, align: 'left' },
 			prefabs.progressBar(),
+			{ ...prefabs.percentage(), size: 10, align: 'left' },
 		])
 	);
 	console.log('choo choo!');

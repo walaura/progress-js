@@ -9,7 +9,7 @@ interface DrawExtraParams {
 	progress: number;
 }
 
-interface UserRow {
+interface Row {
 	draw: (elapsed: number, remaining: number, DrawExtraParams) => string[][];
 	span?: number;
 	size?: number;
@@ -17,8 +17,8 @@ interface UserRow {
 	align?: Alignment;
 }
 
-interface Row extends UserRow {
+interface RowWithAbsoluteSize extends Row {
 	size: number;
 }
 
-export { Row, UserRow, Alignment };
+export { Row, RowWithAbsoluteSize, Alignment };

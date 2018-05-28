@@ -4,49 +4,27 @@ const width: any = require('cli-width');
 const chalk: any = require('chalk');
 
 import { solve as solveLayout } from './util/layout';
-import { Row, UserRow, Alignment } from './util/types';
+import { Row, RowWithAbsoluteSize, Alignment } from './etc/types';
+import { smoosh } from './util/etc';
+import {
+	progressBar,
+	percentage,
+	dotProgressBar,
+	rocketBar,
+	trainBar,
+} from './lib/prefabs';
 
-const smoosh = (arr: any[]): any[] =>
-	arr
-		.map(val => (Array.isArray(val) ? val : [val]))
-		.reduce((acc, current) => [...acc, ...current], []);
-
-const coolProgressBar = (color = chalk.blue) => ({
-	padding: 2,
-	draw: (elapsed, remaining, { progress }) => [
-		Array(elapsed).fill(color('⣿')),
-		remaining > 0 ? [chalk.white('⡇')] : [color('⣿')],
-		remaining > 0 ? Array(remaining).fill(' ') : [],
-		[chalk.white('⡇')],
-	],
-});
-
-const progressBar = (color = chalk.blue) => ({
-	draw: (elapsed, remaining, { progress }) => [
-		Array(elapsed).fill(color('x')),
-		remaining > 0 ? Array(remaining).fill('.') : [],
-	],
-});
-
-const percentage = () => ({
-	align: Alignment.right,
-	size: 6,
-	draw: (elapsed, remaining, { progress }) => [
-		(progress * 100).toString().split(''),
-		['%'],
-	],
-});
-
-const draw = (rows: UserRow[], progress) => {
+const draw = (rows: Row[], progress) => {
 	const screenWidth = width({ defaultWidth: 80 });
-	const fixedRows = solveLayout(rows, { screenWidth });
+	const fixedRows: RowWithAbsoluteSize[] = solveLayout(rows, { screenWidth });
 
 	const line = fixedRows.reduce((previous, row) => {
-		const elapsed = Math.floor(progress * row.size);
+		const padding = row.padding || 0;
+		const elapsed = Math.floor(progress * (row.size - padding));
 
 		const drawn = smoosh(
-			row.draw(elapsed, row.size - elapsed, {
-				total: row.size,
+			row.draw(elapsed, row.size - elapsed - padding, {
+				total: row.size - padding,
 				progress: progress,
 			})
 		).slice(0, row.size);
@@ -66,21 +44,10 @@ const close = () => {
 	process.stdout.write('\n');
 };
 
-const waitFor = 20;
+const waitFor = 200;
 let i = 0;
 
-const rows = [
-	{
-		span: 0.3,
-		...progressBar(),
-	},
-	{
-		...progressBar(chalk.red),
-	},
-	{
-		...percentage(),
-	},
-];
+const rows = [rocketBar(), percentage()];
 
 const ii = setInterval(() => {
 	draw(rows, i / waitFor);

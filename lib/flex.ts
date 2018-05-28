@@ -8,11 +8,11 @@ const getMaxSize = (
 	perc: number,
 	usedSoFar: number,
 	padding: number = 0,
-	{ usableSize }: { usableSize: number }
+	usableSize: number
 ): number => {
-	const size: number = Math.round(usableSize * perc) - padding;
+	const size: number = Math.floor(usableSize * perc);
 	const max: number = usableSize - usedSoFar;
-	return size > max - padding ? max - padding : size;
+	return (size > max ? max : size) - 2;
 };
 
 const normalizeBoxFlex = (
@@ -36,7 +36,7 @@ const getCalculatedBoxSize = (
 					box.flex,
 					boxes.reduce((boxes, box) => boxes + box.flex, 0),
 					box.padding || 0,
-					{ usableSize }
+					usableSize
 				),
 			];
 		}
@@ -49,7 +49,6 @@ const normalizeCalculatedBoxSize = (
 ): number[] => {
 	const multiplier = containerSize / sizes.reduce((acc, size) => acc + size, 0);
 	const normalizedSizes = sizes.map(size => Math.round(size * multiplier));
-
 	const offset =
 		containerSize - normalizedSizes.reduce((acc, size) => acc + size, 0);
 	normalizedSizes[0] += offset;

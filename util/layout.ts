@@ -1,7 +1,7 @@
-import { UserRow, Row } from './types';
+import { RowWithAbsoluteSize, Row } from '../etc/types';
 import { solve as solveFlex } from '../lib/flex';
 
-const solve = (rows: UserRow[], { screenWidth }): Row[] => {
+const solve = (rows: Row[], { screenWidth }): RowWithAbsoluteSize[] => {
 	const sizes = solveFlex(
 		rows.map(row => ({
 			padding: row.padding,

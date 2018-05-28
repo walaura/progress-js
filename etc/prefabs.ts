@@ -42,7 +42,9 @@ const percentage = (): Row => ({
 	align: Alignment.right,
 	size: 6,
 	draw: (elapsed, remaining, { progress }) => [
-		(progress * 100).toString().split(''),
+		Math.round(progress * 100)
+			.toString()
+			.split(''),
 		['%'],
 	],
 });

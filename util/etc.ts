@@ -3,4 +3,15 @@ const smoosh = (arr: any[]): any[] =>
 		.map(val => (Array.isArray(val) ? val : [val]))
 		.reduce((acc, current) => [...acc, ...current], []);
 
-export { smoosh };
+const padArray = (
+	arr: any[],
+	target: number = 0,
+	filler: string = ' '
+): any[] => {
+	while (arr.length < target) {
+		arr.push(filler);
+	}
+	return arr;
+};
+
+export { smoosh, padArray };

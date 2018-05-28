@@ -7,27 +7,32 @@ import { Row, RowWithAbsoluteSize, Alignment } from './etc/types';
 import { smoosh, padArray } from './util/etc';
 import * as prefabs from './etc/prefabs';
 
-const draw = (rows: RowWithAbsoluteSize[], progress) => {
-	const line = rows.reduce((previous, row) => {
-		const padding = row.padding || 0;
-		const elapsed = Math.floor(progress * (row.size - padding));
-
+const getLine = (rows: RowWithAbsoluteSize[], progress: number) =>
+	rows.map(row => {
+		const total = row.size - (row.padding || 0);
+		const elapsed = Math.floor(progress * total);
 		const drawn = smoosh(
-			row.draw(elapsed, row.size - elapsed - padding, {
-				total: row.size - padding,
-				progress: progress,
+			row.draw(elapsed, total - elapsed, {
+				total,
+				progress,
 			})
 		).slice(0, row.size);
+
 		if (row.align === 'right' && row.size - drawn.length > 0) {
 			drawn.unshift(...Array(row.size - drawn.length).fill(' '));
 		}
 
-		return [...previous, ...padArray(drawn, row.size)];
-	}, []);
+		if (row.align === 'center') {
+			throw 'wow rude expecting me to center it';
+		}
 
+		return padArray(drawn, row.size).join('');
+	});
+
+const draw = (rows: RowWithAbsoluteSize[], progress: number) => {
 	process.stdout.clearLine();
 	process.stdout.cursorTo(0);
-	process.stdout.write(line.join(''));
+	process.stdout.write(getLine(rows, progress).join(''));
 };
 
 const close = () => {
@@ -39,17 +44,21 @@ const start = (
 ) => {
 	const screenWidth = width({ defaultWidth: 80 });
 	const fixedRows: RowWithAbsoluteSize[] = solveLayout(rows, { screenWidth });
+	const onUpdate = () => {
+		draw(fixedRows, progress);
+	};
+
+	let progress = 0;
 
 	return {
-		progress: 0,
 		close,
-		upProgress: function(number: number) {
-			this.progress += number;
-			draw(fixedRows, this.progress);
+		upProgress: (number: number) => {
+			progress += number;
+			onUpdate();
 		},
-		setProgress: function(number: number) {
-			this.progress = number;
-			draw(fixedRows, this.progress);
+		setProgress: (number: number) => {
+			progress = number;
+			onUpdate();
 		},
 	};
 };

@@ -12,20 +12,17 @@ const draw = (rows: RowWithAbsoluteSize[], progress) => {
 		const padding = row.padding || 0;
 		const elapsed = Math.floor(progress * (row.size - padding));
 
-		const drawn = padArray(
-			smoosh(
-				row.draw(elapsed, row.size - elapsed - padding, {
-					total: row.size - padding,
-					progress: progress,
-				})
-			),
-			row.size
+		const drawn = smoosh(
+			row.draw(elapsed, row.size - elapsed - padding, {
+				total: row.size - padding,
+				progress: progress,
+			})
 		).slice(0, row.size);
 		if (row.align === 'right' && row.size - drawn.length > 0) {
 			drawn.unshift(...Array(row.size - drawn.length).fill(' '));
 		}
 
-		return [...previous, ...drawn];
+		return [...previous, ...padArray(drawn, row.size)];
 	}, []);
 
 	process.stdout.clearLine();

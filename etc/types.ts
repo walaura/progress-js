@@ -4,9 +4,13 @@ enum Alignment {
 	right = 'right',
 }
 
+interface BarProps {
+	progress: number;
+}
+
 interface DrawExtraParams {
 	total: number;
-	progress: number;
+	props: BarProps;
 }
 
 interface Row {
@@ -21,4 +25,4 @@ interface RowWithAbsoluteSize extends Row {
 	size: number;
 }
 
-export { Row, RowWithAbsoluteSize, Alignment };
+export { Row, RowWithAbsoluteSize, Alignment, BarProps };

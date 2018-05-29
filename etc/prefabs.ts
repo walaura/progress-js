@@ -23,7 +23,7 @@ const trainBar = (): Row => ({
 
 const dotProgressBar = (color = chalk.blue): Row => ({
 	padding: 2,
-	draw: (elapsed, remaining, { progress }) => [
+	draw: (elapsed, remaining) => [
 		Array(elapsed).fill(color('⣿')),
 		remaining > 0 ? [chalk.white('⡇')] : [color('⣿')],
 		remaining > 0 ? Array(remaining).fill(' ') : [],
@@ -31,8 +31,28 @@ const dotProgressBar = (color = chalk.blue): Row => ({
 	],
 });
 
+const asciiBar = (color = chalk.green, altColor = chalk.white): Row => ({
+	padding: 3,
+	draw: (elapsed, remaining) => [
+		[altColor('[')],
+		Array(elapsed).fill(color('=')),
+		remaining > 0 ? [color('>')] : [color('=')],
+		remaining > 0 ? Array(remaining).fill(' ') : [],
+		[altColor(']')],
+	],
+});
+
+const space = (size: number = 1) => ({
+	size,
+	draw: (e, r) => [],
+});
+
+const reporterBar = (): Row => ({
+	draw: (e, r, { props }) => [(props.task || '').split('')],
+});
+
 const progressBar = (color = chalk.blue): Row => ({
-	draw: (elapsed, remaining, { progress }) => [
+	draw: (elapsed, remaining) => [
 		Array(elapsed).fill(color('x')),
 		remaining > 0 ? Array(remaining).fill('.') : [],
 	],
@@ -41,12 +61,21 @@ const progressBar = (color = chalk.blue): Row => ({
 const percentage = (): Row => ({
 	align: Alignment.right,
 	size: 6,
-	draw: (elapsed, remaining, { progress }) => [
-		Math.round(progress * 100)
+	draw: (elapsed, remaining, { props }) => [
+		Math.round(props.progress * 100)
 			.toString()
 			.split(''),
 		['%'],
 	],
 });
 
-export { dotProgressBar, progressBar, rocketBar, percentage, trainBar };
+export {
+	dotProgressBar,
+	asciiBar,
+	progressBar,
+	rocketBar,
+	percentage,
+	trainBar,
+	reporterBar,
+	space,
+};

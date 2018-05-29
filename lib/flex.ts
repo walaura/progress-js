@@ -15,15 +15,36 @@ const getMaxSize = (
 	return (size > max ? max : size) - 2;
 };
 
-const normalizeBoxFlex = (
-	boxes: InputBox[],
-	fixedBoxSize: number
-): InputBox[] =>
-	boxes.map(box => ({
+const getDefaultFlexSize = (box, InputBox, boxes: InputBox[]) => {};
+
+const normalizeBoxFlex = (boxes: InputBox[]): InputBox[] => {
+	const assignedFlexBoxes = boxes.filter(box => !box.size && box.flex, 0);
+	const freeFlexBoxes = boxes.filter(box => !box.size && !box.flex, 0);
+
+	const assignedFlexBoxSpace = assignedFlexBoxes.reduce(
+		(acc, cur) => acc + cur.flex,
+		0
+	);
+
+	boxes = boxes.map(box => ({
 		...box,
-		flex: (box.flex || 1) / fixedBoxSize,
+		flex:
+			box.flex /
+			(assignedFlexBoxSpace > 1
+				? assignedFlexBoxSpace * freeFlexBoxes.length
+				: 1),
 	}));
 
+	const freeFlexBoxSpacePerBox =
+		(1 - assignedFlexBoxSpace) / freeFlexBoxes.length;
+
+	boxes = boxes.map(box => ({
+		...box,
+		flex: box.flex || freeFlexBoxSpacePerBox,
+	}));
+
+	return boxes;
+};
 const getCalculatedBoxSize = (
 	boxes: InputBox[],
 	usableSize: number
@@ -63,19 +84,15 @@ const getUsableSize = (size: number, boxes: InputBox[]): number => {
 	return naiveUsableSize > size / 2 ? naiveUsableSize : size;
 };
 
-const getFixedBoxSize = (boxes: InputBox[]): number => {
-	const getBoxSpanSpace = (box): number => (box.size ? 0 : 1);
-	return boxes.reduce(
-		(acc, box) => (box.flex ? acc + box.flex : acc + getBoxSpanSpace(box)),
-		0
-	);
+const getFlexBoxSize = (boxes: InputBox[]): number => {
+	return boxes.reduce((acc, box) => (box.flex ? acc + box.flex : acc), 0);
 };
 
 const solve = (boxes: InputBox[], size: number): number[] => {
-	const s1 = normalizeBoxFlex(boxes, getFixedBoxSize(boxes));
-	const s2 = getCalculatedBoxSize(s1, getUsableSize(size, boxes));
-	const s3 = normalizeCalculatedBoxSize(s2, size);
-	return s3;
+	boxes = normalizeBoxFlex(boxes);
+	let sizes = getCalculatedBoxSize(boxes, getUsableSize(size, boxes));
+	sizes = normalizeCalculatedBoxSize(sizes, size);
+	return sizes;
 };
 
 export { solve };

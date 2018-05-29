@@ -1,20 +1,21 @@
 declare var process: any;
 declare var require: any;
 const width: any = require('cli-width');
+var readline = require('readline');
 
 import { solve as solveLayout } from './util/layout';
-import { Row, RowWithAbsoluteSize, Alignment } from './etc/types';
+import { Row, RowWithAbsoluteSize, Alignment, BarProps } from './etc/types';
 import { smoosh, padArray } from './util/etc';
 import * as prefabs from './etc/prefabs';
 
-const getLine = (rows: RowWithAbsoluteSize[], progress: number) =>
+const getLine = (rows: RowWithAbsoluteSize[], props: BarProps) =>
 	rows.map(row => {
 		const total = row.size - (row.padding || 0);
-		const elapsed = Math.floor(progress * total);
+		const elapsed = Math.floor(props.progress * total);
 		const drawn = smoosh(
 			row.draw(elapsed, total - elapsed, {
 				total,
-				progress,
+				props,
 			})
 		).slice(0, row.size);
 
@@ -29,10 +30,10 @@ const getLine = (rows: RowWithAbsoluteSize[], progress: number) =>
 		return padArray(drawn, row.size).join('');
 	});
 
-const draw = (rows: RowWithAbsoluteSize[], progress: number) => {
-	process.stdout.clearLine();
+const draw = (rows: RowWithAbsoluteSize[], props: BarProps) => {
 	process.stdout.cursorTo(0);
-	process.stdout.write(getLine(rows, progress).join(''));
+	process.stdout.clearLine();
+	process.stdout.write(getLine(rows, props).join(''));
 };
 
 const close = () => {
@@ -44,20 +45,36 @@ const start = (
 ) => {
 	const screenWidth = width({ defaultWidth: 80 });
 	const fixedRows: RowWithAbsoluteSize[] = solveLayout(rows, { screenWidth });
-	const onUpdate = () => {
-		draw(fixedRows, progress);
+
+	const props = {
+		progress: 0,
+		task: '',
+		etc: {},
 	};
 
-	let progress = 0;
+	const onUpdate = () => {
+		draw(fixedRows, props);
+	};
 
 	return {
 		close,
 		upProgress: (number: number) => {
-			progress += number;
+			props.progress += number;
 			onUpdate();
 		},
 		setProgress: (number: number) => {
-			progress = number;
+			props.progress = number;
+			onUpdate();
+		},
+		setTask: (task: string) => {
+			props.task = task;
+			onUpdate();
+		},
+		setEtc: (newEtc: {}) => {
+			props.etc = {
+				...props.etc,
+				newEtc,
+			};
 			onUpdate();
 		},
 	};

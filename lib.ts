@@ -5,7 +5,7 @@ var readline = require('readline');
 
 import { solve as solveLayout } from './util/layout';
 import { Row, RowWithAbsoluteSize, Alignment, BarProps } from './etc/types';
-import { smoosh, padArray } from './util/etc';
+import { smoosh, align } from './util/etc';
 import * as prefabs from './etc/prefabs';
 
 const getLine = (rows: RowWithAbsoluteSize[], props: BarProps) =>
@@ -19,15 +19,7 @@ const getLine = (rows: RowWithAbsoluteSize[], props: BarProps) =>
 			})
 		).slice(0, row.size);
 
-		if (row.align === 'right' && row.size - drawn.length > 0) {
-			drawn.unshift(...Array(row.size - drawn.length).fill(' '));
-		}
-
-		if (row.align === 'center') {
-			throw 'wow rude expecting me to center it';
-		}
-
-		return padArray(drawn, row.size).join('');
+		return align(drawn, row.size, row.align).join('');
 	});
 
 const draw = (rows: RowWithAbsoluteSize[], props: BarProps) => {

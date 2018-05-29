@@ -23,6 +23,11 @@ const longTask = (length, bar) => {
 };
 
 const main = async () => {
+	console.log('welcome');
+	await longTask(
+		50,
+		start([{ ...prefabs.percentage(), size: 600, align: 'center' }])
+	);
 	console.log('doing stuff!');
 	await longTask(50, start());
 	console.log('more!');

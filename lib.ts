@@ -41,7 +41,15 @@ const close = () => {
 };
 
 const start = (
-	rows: Row[] = [prefabs.dotProgressBar(), prefabs.percentage()]
+	rows: Row[] = [
+		prefabs.dotBar(),
+		prefabs.space(),
+		{
+			...prefabs.percentage(),
+			align: Alignment.right,
+		},
+	],
+	initialState = {}
 ) => {
 	const screenWidth = width({ defaultWidth: 80 });
 	const fixedRows: RowWithAbsoluteSize[] = solveLayout(rows, { screenWidth });
@@ -50,11 +58,14 @@ const start = (
 		progress: 0,
 		task: '',
 		etc: {},
+		...initialState,
 	};
 
 	const onUpdate = () => {
 		draw(fixedRows, props);
 	};
+
+	onUpdate();
 
 	return {
 		close,

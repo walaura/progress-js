@@ -29,7 +29,7 @@ const main = async () => {
 	await longTask(
 		100,
 		start([
-			prefabs.progressBar(),
+			prefabs.amsterdamBar(),
 			prefabs.space(),
 			{ ...prefabs.percentage(), size: 10, align: 'left' },
 		])

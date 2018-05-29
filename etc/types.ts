@@ -6,6 +6,8 @@ enum Alignment {
 
 interface BarProps {
 	progress: number;
+	task: string;
+	etc: {};
 }
 
 interface DrawExtraParams {
